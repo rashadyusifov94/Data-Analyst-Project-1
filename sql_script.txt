@@ -1,0 +1,27 @@
+with marketing as (
+SELECT date, impressions, clicks, cost, case
+    when marketing_channel = 'Social' then 'social network'
+    when marketing_channel = 'Search' then 'seo'
+    when marketing_channel = 'Native' then 'native' end as marketing_channel
+FROM public.mkt),
+
+lead_aggregate as (
+select lead_date, marketing_channel,
+count(lead_id) as lead_counts,
+sum(score) as total_score,
+count(case when appointment_type = 'Hearing Test 30 Min' then 1 end) as thirty_minutes_tests,
+count(case when appointment_type = 'Hearing Test 90 Min' then 1 end) as ninety_minutes_tests,
+count(case when appointment_type = 'Service Appointment' then 1 end) as service_appointment_tests,
+count(case when appointment_type = 'Other' then 1 end) as other_tests
+from (
+-- I omit the appointment_date because I don't think it makes a lot of sense for this analysis since it depends on the customer schedule
+select lead_id, cast(lead_date as date) as lead_date, score, marketing_channel, appointment_type
+from public.leads
+where lead_id != 0 -- There are 2098 lead_id = 0, which cannot be traced back to a person or multiple persons because there are 23,001 duplicates in the leads data set. So I just removed it.
+group by 1,2,3,4,5)
+group by 1,2)
+
+select coalesce(date, lead_date) as date, coalesce(m.marketing_channel, l.marketing_channel) as marketing_channel, impressions, clicks, cost, lead_counts, total_score, thirty_minutes_tests, ninety_minutes_tests, service_appointment_tests, other_tests
+from marketing m
+full outer join lead_aggregate l on (m.date = l.lead_date and m.marketing_channel = l.marketing_channel)
+order by 1,2
