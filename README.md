@@ -2,6 +2,7 @@
 
 Please read the assignment pdf file that includes all the questions about what stakeholders need.
 
-Please click on the link below for the data visualization:
+Contact me please if you want to see the complete data visualization:
 
-https://datastudio.google.com/u/1/reporting/6d601b1d-bf64-4d64-9191-cf828abfd45b/page/NxVZC
+https://datastudio.google.com/s/iZr_WM2fOX8
+
